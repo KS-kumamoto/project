@@ -1,0 +1,12 @@
+*.class
+*.jar
+*.war
+*.ear
+bin/
+target/
+.gradle/
+build/
+*.pyc
+__pycache__/
+.idea/
+.vscode/
