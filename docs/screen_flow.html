@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>画面遷移図 - Screen Flow</title>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .header h1 {
+      color: #c2185b;
+      margin: 0 0 0.5rem 0;
+    }
+    .flow-container {
+      position: relative;
+      width: 800px;
+      height: 400px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      padding: 2rem;
+    }
+    .node {
+      position: absolute;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border-top: 5px solid #ec407a;
+      width: 220px;
+      text-align: center;
+      z-index: 2;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .node:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(236, 64, 122, 0.2);
+    }
+    .node h3 {
+      margin: 0 0 10px 0;
+      color: #d81b60;
+      font-size: 1.1rem;
+    }
+    .node p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #666;
+      line-height: 1.5;
+    }
+    
+    /* Postions */
+    #auth-check { top: 40px; left: 290px; }
+    #login-screen { top: 220px; left: 40px; border-top-color: #ff9800; }
+    #main-screen { top: 220px; left: 540px; border-top-color: #4caf50; }
+    
+    /* SVG Container for background arrows */
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+    path {
+      fill: none;
+      stroke: #888;
+      stroke-width: 3;
+      stroke-linecap: round;
+      opacity: 0.6;
+    }
+    .label {
+      position: absolute;
+      font-size: 0.8rem;
+      color: #555;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 4px 10px;
+      border-radius: 12px;
+      z-index: 3;
+      font-weight: bold;
+      border: 1px solid #ddd;
+    }
+    /* Arrow animations */
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -20;
+      }
+    }
+    .animated-path {
+      stroke-dasharray: 5, 5;
+      animation: dash 1s linear infinite;
+    }
+    .color-orange { color: #f57c00 !important; border-color: #ffe0b2 !important; }
+    .color-green { color: #388e3c !important; border-color: #c8e6c9 !important; }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="header">
+    <h1>App Screen Flow</h1>
+    <p>ユーザー認証と画面状態の遷移フロー図</p>
+  </div>
+
+  <div class="flow-container">
+    <svg>
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#888" />
+        </marker>
+        <marker id="arrowhead-orange" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#ff9800" />
+        </marker>
+        <marker id="arrowhead-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#4caf50" />
+        </marker>
+      </defs>
+
+      <!-- Auth Check to Login/Register (401) -->
+      <path d="M 370 145 C 370 180, 150 160, 150 215" marker-end="url(#arrowhead)" />
+      
+      <!-- Auth Check to Main Dashboard (200 OK) -->
+      <path d="M 430 145 C 430 180, 650 160, 650 215" marker-end="url(#arrowhead)" />
+      
+      <!-- Login to Auth Check (Success) -->
+      <path class="animated-path" d="M 210 215 C 210 130, 310 160, 350 145" stroke="#ff9800" stroke-width="2.5" marker-end="url(#arrowhead-orange)" />
+      
+      <!-- Main Dashboard to Auth Check (Logout) -->
+      <path class="animated-path" d="M 590 215 C 590 130, 490 160, 450 145" stroke="#4caf50" stroke-width="2.5" marker-end="url(#arrowhead-green)" />
+    </svg>
+
+    <!-- Transition Labels -->
+    <div class="label" style="top: 160px; left: 230px;">401 Unauthorized</div>
+    <div class="label" style="top: 160px; left: 450px;">200 OK</div>
+    
+    <div class="label color-orange" style="top: 140px; left: 160px;">Login / Register Succes</div>
+    <div class="label color-green" style="top: 140px; left: 520px;">Logout Click</div>
+
+    <!-- UI Nodes -->
+    <div id="auth-check" class="node">
+      <h3>🔐 Auth Check</h3>
+      <p>
+        GET <code>/api/auth/me</code><br>
+        (セッション検証)
+      </p>
+    </div>
+
+    <div id="login-screen" class="node">
+      <h3 style="color: #f57c00">👤 Auth Screen</h3>
+      <p style="text-align: left;">
+        <strong style="color: #666;">（未ログイン状態）</strong><br><br>
+        ✅ ログインフォーム<br>
+        ✅ 新規登録フォーム<br>
+        📖 投稿一覧（Public）
+      </p>
+    </div>
+
+    <div id="main-screen" class="node">
+      <h3 style="color: #388e3c">🏠 Main Dashboard</h3>
+      <p style="text-align: left;">
+        <strong style="color: #666;">（ログイン済状態）</strong><br><br>
+        👋 ユーザー挨拶<br>
+        ✍️ 新規投稿フォーム<br>
+        📖 投稿一覧（Public）
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>

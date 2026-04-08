@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>詳細データフロー図 - Data Flow Diagrams</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <!-- Mermaid.jsの読み込み -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .header h1 {
+      color: #3f51b5;
+      font-size: 2.5rem;
+      margin: 0;
+    }
+    .header p {
+      font-size: 1.1rem;
+      color: #555;
+    }
+    .diagram-container {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(15px);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      padding: 2.5rem;
+      margin: 0 auto 5rem auto;
+      max-width: 95%;
+      width: 95vw;
+      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .diagram-container h2 {
+      margin-top: 0;
+      color: #1976d2;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 10px;
+      flex-shrink: 0;
+    }
+    /* Mermaid用のスクロール・拡大対応 */
+    .mermaid-box {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+    .mermaid {
+      width: 100%;
+      text-align: center;
+    }
+    .mermaid svg {
+      width: 100% !important;
+      max-width: none !important;
+      height: auto !important;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Detailed Data Flow Diagrams</h1>
+    <p>フロントエンドからデータベースに至るまでのシーケンス仕様</p>
+  </div>
+
+  <!-- 1. ユーザー登録処理 -->
+  <div class="diagram-container">
+    <h2>1. ユーザー登録処理 (Registration Flow)</h2>
+    <div class="mermaid-box">
+      <pre class="mermaid">
+        sequenceDiagram
+            autonumber
+            
+            box rgba(173, 216, 230, 0.4) "Frontend Layer"
+                participant UI as React UI
+                participant Fetch as Fetch API
+            end
+            box rgba(255, 200, 150, 0.4) "Security Layer"
+                participant SEC as Spring Security
+                participant Enc as BCrypt Hash
+            end
+            box rgba(180, 230, 180, 0.4) "Backend Core"
+                participant CTRL as AuthController
+                participant REPO as UserRepository
+            end
+            box rgba(230, 200, 250, 0.4) "Persistence"
+                participant DB as H2 Database
+            end
+
+            UI->>UI: ユーザー名・パスワード入力
+            UI->>Fetch: submit (Register)
+            Fetch->>SEC: POST /api/auth/register
+            
+            Note over SEC,CTRL: Publicエンドポイント (permitAll)
+            SEC->>CTRL: リクエスト到達
+            
+            CTRL->>REPO: existsByUsername()
+            REPO->>DB: SELECT COUNT(*) ...
+            DB-->>REPO: 0件
+            REPO-->>CTRL: 重複なし(false)
+            
+            CTRL->>Enc: encode(password)
+            Enc-->>CTRL: ハッシュ値 ($2a$10$...)
+            
+            CTRL->>REPO: save(User)
+            REPO->>DB: INSERT INTO users ...
+            DB-->>REPO: 保存成功
+            REPO-->>CTRL: Userエンティティ
+            
+            CTRL-->>Fetch: 200 OK "Success"
+            Fetch-->>UI: 登録完了・ログイン画面へ切替
+      </pre>
+    </div>
+  </div>
+
+  <!-- 2. ログイン処理 -->
+  <div class="diagram-container">
+    <h2>2. ログイン処理 (Login Flow)</h2>
+    <div class="mermaid-box">
+      <pre class="mermaid">
+        sequenceDiagram
+            autonumber
+            
+            box rgba(173, 216, 230, 0.4) "Frontend Layer"
+                participant UI as React UI
+            end
+            box rgba(255, 200, 150, 0.4) "Security Layer"
+                participant AM as AuthManager
+                participant UDS as UserDetailsService
+                participant Filter as SecurityContext
+            end
+            box rgba(180, 230, 180, 0.4) "Backend Core"
+                participant CTRL as AuthController
+                participant REPO as UserRepository
+            end
+            box rgba(230, 200, 250, 0.4) "Persistence"
+                participant DB as H2 Database
+            end
+
+            UI->>CTRL: POST /api/auth/login
+            
+            CTRL->>AM: authenticate()
+            AM->>UDS: loadUserByUsername()
+            UDS->>REPO: findByUsername()
+            REPO->>DB: SELECT FROM users
+            DB-->>REPO: レコード
+            REPO-->>UDS: Userエンティティ
+            UDS-->>AM: UserDetails
+            
+            Note right of AM: パスワードをBCrypt照合
+            AM-->>CTRL: 認証成功 (Authentication)
+            
+            CTRL->>Filter: SecurityContextにセット
+            Note right of Filter: レスポンスに Set-Cookie: JSESSIONID 付与
+            
+            CTRL-->>UI: 200 OK (username) + Cookie
+            UI->>UI: メイン画面表示 (login)
+      </pre>
+    </div>
+  </div>
+
+  <!-- 3. アプリ初期表示時 -->
+  <div class="diagram-container">
+    <h2>3. アプリ初期表示時 (Auth Check & Fetch)</h2>
+    <div class="mermaid-box">
+      <pre class="mermaid">
+        sequenceDiagram
+            autonumber
+            
+            box rgba(173, 216, 230, 0.4) "Frontend Layer"
+                participant UI as React UI
+            end
+            box rgba(255, 200, 150, 0.4) "Security Layer"
+                participant SEC as Spring Security
+            end
+            box rgba(180, 230, 180, 0.4) "Backend Core"
+                participant ACTRL as AuthController
+                participant PCTRL as PostController
+                participant REPO as PostRepository
+            end
+            box rgba(230, 200, 250, 0.4) "Persistence"
+                participant DB as H2 Database
+            end
+
+            UI->>UI: App.tsx useEffect (マウント時)
+            
+            par 認証確認 (Session Check)
+                UI->>SEC: GET /api/auth/me (Cookie)
+                SEC->>ACTRL: セッション有効
+                ACTRL-->>UI: 200 OK (username)
+                UI->>UI: set user state
+            and 投稿一覧取得 (Public)
+                UI->>SEC: GET /api/posts
+                SEC->>PCTRL: 許可 (permitAll)
+                PCTRL->>REPO: findAll()
+                REPO->>DB: SELECT FROM posts
+                DB-->>REPO: 履歴
+                REPO-->>PCTRL: Post[]
+                PCTRL-->>UI: 200 OK (Post Array)
+                UI->>UI: set posts state
+            end
+      </pre>
+    </div>
+  </div>
+
+  <!-- 4. 新規投稿処理 -->
+  <div class="diagram-container">
+    <h2>4. 新規記事の投稿 (Post Creation)</h2>
+    <div class="mermaid-box">
+      <pre class="mermaid">
+        sequenceDiagram
+            autonumber
+            
+            box rgba(173, 216, 230, 0.4) "Frontend Layer"
+                participant UI as React UI
+            end
+            box rgba(255, 200, 150, 0.4) "Security Layer"
+                participant SEC as Spring Security
+            end
+            box rgba(180, 230, 180, 0.4) "Backend Core"
+                participant CTRL as PostController
+                participant UREPO as UserRepository
+                participant PREPO as PostRepository
+            end
+            box rgba(230, 200, 250, 0.4) "Persistence"
+                participant DB as H2 Database
+            end
+
+            UI->>UI: フォーム入力 (Title, Content)
+            UI->>SEC: POST /api/posts (Cookie: JSESSIONID)
+            
+            Note right of SEC: 認証済みユーザーのみ通過
+            SEC->>CTRL: Authentication と共にルーティング
+            
+            CTRL->>UREPO: findByUsername() [Session情報から]
+            UREPO->>DB: Query User
+            DB-->>UREPO: ユーザーEnt
+            UREPO-->>CTRL: 投稿者(User)を特定
+            
+            Note right of CTRL: Postエンティティを生成して紐付け
+            CTRL->>PREPO: save(Post)
+            PREPO->>DB: INSERT INTO posts ...
+            DB-->>PREPO: 保存成功
+            PREPO-->>CTRL: 保存されたPost (ID採番済み)
+            
+            CTRL-->>UI: 200 OK (新しいPostデータ)
+            UI->>UI: フォームクリア・一覧再描画
+      </pre>
+    </div>
+  </div>
+
+</body>
+</html>
