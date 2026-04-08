@@ -11,10 +11,10 @@ export default function App() {
   const [user, setUser] = useState<string | null>(null);
   const [isLoginView, setIsLoginView] = useState(true);
   const [posts, setPosts] = useState<Post[]>([]);
-  
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
 
@@ -116,11 +116,14 @@ export default function App() {
   return (
     <div>
       <div className="nav">
-        <h2 style={{margin: 0, color: '#ec407a'}}>✨ Web App Demo</h2>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem' }}>
+          <h2 style={{ margin: 0, color: '#ec407a' }}>✨ Web App Demo</h2>
+          <a href="/data_flow.html" target="_blank" rel="noopener noreferrer" style={{ color: '#ec407a', textDecoration: 'underline', fontSize: '20px' }}>📄 Data Flow Docs</a>
+        </div>
         {user ? (
           <div>
-            <span style={{marginRight: '1rem', fontWeight: 'bold'}}>Hi, {user}!</span>
-            <button onClick={handleLogout} style={{background: '#9e9e9e'}}>Logout</button>
+            <span style={{ marginRight: '1rem', fontWeight: 'bold' }}>Hi, {user}!</span>
+            <button onClick={handleLogout} style={{ background: '#9e9e9e' }}>Logout</button>
           </div>
         ) : (
           <div>Not logged in</div>
@@ -136,15 +139,15 @@ export default function App() {
               <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
               <button>{isLoginView ? 'Login' : 'Signup'}</button>
             </form>
-            <p style={{marginTop: '1rem', cursor: 'pointer', color: '#ec407a', textDecoration: 'underline'}} 
-               onClick={() => setIsLoginView(!isLoginView)}>
+            <p style={{ marginTop: '1rem', cursor: 'pointer', color: '#ec407a', textDecoration: 'underline' }}
+              onClick={() => setIsLoginView(!isLoginView)}>
               {isLoginView ? 'Need an account? Register' : 'Have an account? Login'}
             </p>
           </div>
         )}
 
         {user && (
-          <div className="auth-form" style={{maxWidth: '100%', marginBottom: '2rem'}}>
+          <div className="auth-form" style={{ maxWidth: '100%', marginBottom: '2rem' }}>
             <h3>Create a New Post</h3>
             <form onSubmit={handlePost}>
               <input placeholder="Title" value={newTitle} onChange={e => setNewTitle(e.target.value)} required />
@@ -158,9 +161,9 @@ export default function App() {
           <h2>Recent Posts 📝</h2>
           {posts.length === 0 ? <p>No posts yet. Be the first!</p> : posts.map(post => (
             <div key={post.id} className="post-card">
-              <h3 style={{marginTop: 0, color: '#d81b60'}}>{post.title}</h3>
-              <p style={{whiteSpace: 'pre-wrap'}}>{post.content}</p>
-              <small style={{color: '#9e9e9e'}}>— Posted by <strong>{post.author}</strong></small>
+              <h3 style={{ marginTop: 0, color: '#d81b60' }}>{post.title}</h3>
+              <p style={{ whiteSpace: 'pre-wrap' }}>{post.content}</p>
+              <small style={{ color: '#9e9e9e' }}>— Posted by <strong>{post.author}</strong></small>
             </div>
           ))}
         </div>
