@@ -2,15 +2,16 @@
 
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel)](https://project-ivory-rho-74.vercel.app/)
 
-このプロジェクトは、フロントエンドにReact（Vite）、バックエンドにSpring Bootを利用したフルスタックのWebアプリケーションです。
-　※バックエンドはRenderフリープランのため、起動に1分程度かかる場合があります
+このプロジェクトは、フロントエンドにReact（Vite）、バックエンドにSpring Bootを利用したフルスタックのWebアプリケーションです。  
+　※バックエンドはRenderフリープランのため、起動に1分程度かかる場合があります。
 
 👉 **[実際のアプリをプレビューする（ここをクリック）](https://project-ivory-rho-74.vercel.app/)**
 
 ## 📖 プロジェクトの概要
 
-（ここに「どんな課題を解決するため」「誰のために」作ったアプリか、簡単に1〜2行で記述します）
-例：ユーザーが自由に日記やメモを投稿・共有できるシンプルな掲示板アプリケーションです。
+職業訓練で作成したX(旧twitter)の機能再現アプリをフレームワークを使用して再構築しました。  
+AntigravityによるAI駆動開発を行い、2日で自動テスト+手動での最終動作確認まで完了できています。
+
 
 ## 🚀 主な機能
 
@@ -38,7 +39,7 @@
 - Hosting: **Render.com** (Docker環境)
 
 ### Database
-- **H2 Database** (インメモリデータベース)
+- **H2 Database** (※インメモリデータベースのため、一定時間でデータリセット)
 
 ## 🤔 工夫した点・課題と解決策
 
