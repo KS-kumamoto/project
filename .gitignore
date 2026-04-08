@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Node / Frontend ###
+frontend/node_modules/
+frontend/dist/
+.env
