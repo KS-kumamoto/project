@@ -18,6 +18,8 @@ export default function App() {
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
 
+  const API_URL = import.meta.env.VITE_API_URL || '';
+
   useEffect(() => {
     fetchPosts();
     checkAuth();
@@ -25,7 +27,7 @@ export default function App() {
 
   const checkAuth = async () => {
     try {
-      const res = await fetch('/api/auth/me');
+      const res = await fetch(`${API_URL}/api/auth/me`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setUser(data.username);
@@ -37,7 +39,7 @@ export default function App() {
 
   const fetchPosts = async () => {
     try {
-      const res = await fetch('/api/posts');
+      const res = await fetch(`${API_URL}/api/posts`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setPosts(data);
@@ -50,9 +52,10 @@ export default function App() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password })
       });
       if (res.ok) {
@@ -71,9 +74,10 @@ export default function App() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password })
       });
       if (res.ok) {
@@ -88,7 +92,7 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await fetch(`${API_URL}/api/auth/logout`, { method: 'POST', credentials: 'include' });
     setUser(null);
   };
 
@@ -96,9 +100,10 @@ export default function App() {
     e.preventDefault();
     if (!newTitle || !newContent) return;
     try {
-      const res = await fetch('/api/posts', {
+      const res = await fetch(`${API_URL}/api/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ title: newTitle, content: newContent })
       });
       if (res.ok) {
