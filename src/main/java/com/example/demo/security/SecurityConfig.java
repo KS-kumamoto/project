@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 import org.springframework.web.cors.CorsConfiguration;
@@ -47,7 +48,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Disable CSRF for simplified demo REST API, or enable with cookie
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/posts").permitAll() // Anyone can view posts
+                .requestMatchers(HttpMethod.GET, "/api/posts").permitAll() // Anyone can view posts
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll() // Allow serving static assets and frontend
             )
@@ -62,7 +63,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*")); // Allow all origins (use specific ones in real production)
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:5173", "https://*.vercel.app")); // Allow only specifically trusted origins
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
