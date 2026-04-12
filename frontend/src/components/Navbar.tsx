@@ -10,7 +10,6 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
     <div className="nav">
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '1rem' }}>
         <h2 style={{ margin: 0, color: '#ec407a' }}>✨ Web App Demo</h2>
-        <a href="/data_flow.html" target="_blank" rel="noopener noreferrer" style={{ color: '#ec407a', textDecoration: 'underline', fontSize: '20px' }}>📄 Data Flow Docs</a>
       </div>
       {user ? (
         <div>
